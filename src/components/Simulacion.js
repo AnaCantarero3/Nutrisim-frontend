@@ -50,9 +50,11 @@ const Simulacion = () => {
 
         <label>Factor de estrés:</label>
         <select>
-          <option value="bajo">Bajo</option>
-          <option value="moderado">Moderado</option>
-          <option value="alto">Alto</option>
+          <option value="sedentarismo">1.2</option>
+          <option value="actividad ligera">1.3</option>
+          <option value="estres moderado">1.3-1.5</option>
+          <option value="estres severo">1.5-1.7</option>
+          <option value="gran estres metabolico">1.7-2.0</option>
         </select>
 
         <button onClick={calcularResultados}>Calcular</button>
