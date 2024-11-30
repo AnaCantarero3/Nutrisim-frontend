@@ -1,0 +1,74 @@
+body {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #fdf5e6; 
+}
+
+.home-container {
+  position: relative; 
+  text-align: center;
+  background-color: #fdf5e6;
+  padding: 50px 20px;
+  border-radius: 10px;
+}
+
+.title {
+  font-size: 4rem;
+  color: #e8945e;
+  font-family: 'Nunito', sans-serif;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  font-size: 1.8rem;
+  color: #343434;
+  font-family: 'Poppins', sans-serif;
+  margin-bottom: 30px;
+}
+
+.button-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.button {
+  background-color: #e8945e;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 10px;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.button:hover {
+  background-color: #d77a42;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+}
+
+.icon {
+  font-size: 1.5rem;
+}
+
+.decorative-icon {
+  position: absolute;
+  font-size: 3rem;
+  color: rgba(232, 148, 94, 0.2); 
+  z-index: 1; 
+}
+
+.apple { top: -15%; left: -50%; }
+.heart { top: 30%; left: -70%; }
+.water { top: 75%; left: -50%; }
+.lemon { top: 105%; left: -70%; }

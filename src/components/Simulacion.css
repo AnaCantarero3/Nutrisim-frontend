@@ -1,0 +1,88 @@
+.simulacion-container {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    padding: 20px;
+    background-color: #fae7dd;
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  .datos-paciente {
+    width: 30%;
+    background-color: #f2d0b3;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .datos-paciente h2 {
+    font-size: 1.5rem;
+    color: #704c29;
+  }
+  
+  .datos-paciente label {
+    display: block;
+    margin-top: 10px;
+    color: #704c29;
+  }
+  
+  .datos-paciente input {
+    margin: 5px 0; 
+    padding: 8px;
+    font-size: 0.9rem;
+    width: 95%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .datos-paciente select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    border: 1px solid #d1b089;
+    border-radius: 5px;
+  }
+  
+  .radio-group label {
+    display: inline-block;
+    margin-right: 10px;
+  }
+  
+  button {
+    width: 100%;
+    background-color: #f08040;
+    color: white;
+    font-size: 1rem;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #e26d1d;
+  }
+  
+  .resultados {
+    flex-grow: 1;
+  }
+  
+  .resultados table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  .resultados th,
+  .resultados td {
+    border: 1px solid #d1b089;
+    padding: 8px;
+    text-align: center;
+  }
+  
+  .icono-cuerpo {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }    
