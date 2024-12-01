@@ -1,19 +1,59 @@
 import React, { useState } from "react";
+import { calcularNutricion } from "../services/api";
 import "./Simulacion.css";
 
 const Simulacion = () => {
+  const [formData, setFormData] = useState({
+    genero: "",
+    peso: "",
+    talla: "",
+    edad: "",
+    dias_tratamiento: "",
+    factor_estres: "",
+  });
   const [datos, setDatos] = useState([]);
-  const [tamanoCuerpo, setTamanoCuerpo] = useState(100); 
+  const [resumenTotal, setResumenTotal] = useState(null); // Para almacenar los datos del resumen final
+  const [diaActual, setDiaActual] = useState(0);
+  const [mostrarTablaFinal, setMostrarTablaFinal] = useState(false);
+  const [tamanoCuerpo, setTamanoCuerpo] = useState(100);
+  const [error, setError] = useState(null);
 
-  const calcularResultados = () => {
-    const nuevosDatos = [
-      { dia: 1, calorias: 20, kcal: 500, polvo: 1, preparaciones: 2, agua: 500, intervalo: "4 horas" }, //datos de ejemplo
-      { dia: 2, calorias: 30, kcal: 600, polvo: 1.5, preparaciones: 3, agua: 600, intervalo: "3 horas" },
-    ];
-    setDatos(nuevosDatos);
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
-    const totalCalorias = nuevosDatos.reduce((total, item) => total + item.kcal, 0);
-    setTamanoCuerpo(Math.max(50, Math.min(totalCalorias / 50, 200))); 
+  const calcularResultados = async () => {
+    try {
+      setError(null);
+      setDiaActual(0); // Reiniciar simulación
+      setMostrarTablaFinal(false); // Ocultar tabla final
+      const response = await calcularNutricion(formData);
+      setDatos(response.resultadosPorDia);
+      setResumenTotal(response.resumenTotal); // Guardar el resumen total
+
+      // Tamaño inicial
+      const caloriasDia1 = response.resultadosPorDia[0]?.caloriasDia || 0;
+      setTamanoCuerpo(Math.max(50, Math.min(caloriasDia1 / 50, 200)));
+    } catch (err) {
+      setError(err.error || "Ocurrió un error al calcular.");
+    }
+  };
+
+  const avanzarDia = () => {
+    if (diaActual < datos.length - 1) {
+      setDiaActual((prev) => prev + 1);
+
+      const caloriasDia = datos[diaActual + 1]?.caloriasDia || 0;
+      setTamanoCuerpo(Math.max(50, Math.min(caloriasDia / 50, 200))); // Actualizar tamaño dinámico
+    } else {
+      setMostrarTablaFinal(true); // Mostrar tabla final
+    }
+  };
+
+  const obtenerColorTorso = (porcentajeTolerancia) => {
+    if (porcentajeTolerancia === 100) return "green";
+    if (porcentajeTolerancia === 75) return "orange";
+    return "red";
   };
 
   return (
@@ -21,100 +61,185 @@ const Simulacion = () => {
       <div className="datos-paciente">
         <h2>Datos del paciente</h2>
         <label>Edad:</label>
-        <input type="number" placeholder="Edad" />
+        <input
+          type="number"
+          name="edad"
+          value={formData.edad}
+          onChange={handleChange}
+          placeholder="Edad"
+        />
 
         <label>Peso (kg):</label>
-        <input type="number" placeholder="Peso" />
+        <input
+          type="number"
+          name="peso"
+          value={formData.peso}
+          onChange={handleChange}
+          placeholder="Peso"
+        />
 
-        <label>Estatura (cm):</label>
-        <input type="number" placeholder="Estatura" />
+        <label>Estatura (m):</label>
+        <input
+          type="number"
+          name="talla"
+          value={formData.talla}
+          onChange={handleChange}
+          placeholder="Estatura"
+        />
 
         <label className="genero-container">Género:</label>
         <div className="radio-group">
           <label>
-            <input type="radio" name="genero" value="femenino" /> Femenino
+            <input
+              type="radio"
+              name="genero"
+              value="Femenino"
+              checked={formData.genero === "Femenino"}
+              onChange={handleChange}
+            />{" "}
+            Femenino
           </label>
           <label>
-            <input type="radio" name="genero" value="masculino" /> Masculino
+            <input
+              type="radio"
+              name="genero"
+              value="Masculino"
+              checked={formData.genero === "Masculino"}
+              onChange={handleChange}
+            />{" "}
+            Masculino
           </label>
         </div>
 
         <label>Días de alimentación enteral:</label>
-        <input type="number" min="1" max="30" step="1" placeholder="Días" />
-
-        <label>Suplemento:</label>
-        <select>
-          <option value="ensure">Ensure</option>
-          <option value="ensure-advance">Ensure Advance</option>
-        </select>
+        <input
+          type="number"
+          name="dias_tratamiento"
+          value={formData.dias_tratamiento}
+          onChange={handleChange}
+          min="1"
+          max="30"
+          step="1"
+          placeholder="Días"
+        />
 
         <label>Factor de estrés:</label>
-        <select>
-          <option value="sedentarismo">1.2</option>
-          <option value="actividad ligera">1.3</option>
-          <option value="estres moderado">1.3-1.5</option>
-          <option value="estres severo">1.5-1.7</option>
-          <option value="gran estres metabolico">1.7-2.0</option>
+        <select
+          name="factor_estres"
+          value={formData.factor_estres}
+          onChange={handleChange}
+        >
+          <option value="">Selecciona</option>
+          <option value="1.2">Bajo</option>
+          <option value="1.5">Moderado</option>
+          <option value="1.7">Alto</option>
         </select>
 
         <button onClick={calcularResultados}>Calcular</button>
       </div>
 
       <div className="resultados">
-        {/* Representación del cuerpo */}
-        <div className="icono-cuerpo">
-          <svg
-            width="200"
-            height="400"
-            viewBox="0 0 200 400"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            {/* Cabeza */}
-            <circle cx="100" cy="50" r="30" fill="#f4a261" />
-            {/* Torso dinámico */}
-            <rect
-              x={100 - tamanoCuerpo / 2}
-              y="80"
-              width={tamanoCuerpo}
-              height="150"
-              fill="#f4a261"
-            />
-            {/* Piernas */}
-            <rect x="70" y="230" width="20" height="120" fill="#f4a261" />
-            <rect x="110" y="230" width="20" height="120" fill="#f4a261" />
-            {/* Brazos */}
-            <rect x={100 - tamanoCuerpo / 2 - 20} y="100" width="20" height="80" fill="#f4a261" />
-            <rect x={100 + tamanoCuerpo / 2} y="100" width="20" height="80" fill="#f4a261" />
-          </svg>
-        </div>
+        {error && <p className="error">{error}</p>}
 
-        {/* Tabla de resultados */}
-        <table>
-          <thead>
-            <tr>
-              <th>Día</th>
-              <th>Calorías (%)</th>
-              <th>Calorías (Kcal)</th>
-              <th>Polvo (kg)</th>
-              <th>Preparaciones</th>
-              <th>Agua (ml)</th>
-              <th>Intervalo</th>
-            </tr>
-          </thead>
-          <tbody>
-            {datos.map((dato, index) => (
-              <tr key={index}>
-                <td>{dato.dia}</td>
-                <td>{dato.calorias}%</td>
-                <td>{dato.kcal}</td>
-                <td>{dato.polvo} kg</td>
-                <td>{dato.preparaciones}</td>
-                <td>{dato.agua} ml</td>
-                <td>{dato.intervalo}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        {/* Muñeco y datos diarios */}
+        {!mostrarTablaFinal && diaActual < datos.length && (
+          <>
+            <div className="icono-cuerpo">
+              <svg
+                width="200"
+                height="400"
+                viewBox="0 0 200 400"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle cx="100" cy="50" r="30" fill="#f4a261" />
+                <rect
+                  x={100 - tamanoCuerpo / 2}
+                  y="80"
+                  width={tamanoCuerpo}
+                  height="150"
+                  fill={obtenerColorTorso(datos[diaActual]?.porcentajeTolerancia)}
+                />
+                <rect x="70" y="230" width="20" height="120" fill="#f4a261" />
+                <rect x="110" y="230" width="20" height="120" fill="#f4a261" />
+                <rect
+                  x={100 - tamanoCuerpo / 2 - 20}
+                  y="100"
+                  width="20"
+                  height="80"
+                  fill="#f4a261"
+                />
+                <rect
+                  x={100 + tamanoCuerpo / 2}
+                  y="100"
+                  width="20"
+                  height="80"
+                  fill="#f4a261"
+                />
+              </svg>
+            </div>
+
+            <div className="tabla-datos-dia">
+              <h3>Datos del Día {diaActual + 1}</h3>
+              <p>Calorías: {datos[diaActual]?.caloriasDia}</p>
+              <p>Suplemento (g): {datos[diaActual]?.suplementoGramos}</p>
+              <p>Preparaciones: {datos[diaActual]?.preparaciones}</p>
+              <p>
+                Intervalo:{" "}
+                {datos[diaActual]?.intervaloPreparaciones.horas}h{" "}
+                {datos[diaActual]?.intervaloPreparaciones.minutos}m
+              </p>
+            </div>
+          </>
+        )}
+
+        {/* Tabla final */}
+        {mostrarTablaFinal && resumenTotal && (
+          <div>
+            <h2>Resumen Final</h2>
+            <p>
+              <strong>Gramos totales:</strong> {resumenTotal.gramosTotales} g
+            </p>
+            <p>
+              <strong>Latas de 800g:</strong> {resumenTotal.latas800g}
+            </p>
+            <p>
+              <strong>Latas de 400g:</strong> {resumenTotal.latas400g}
+            </p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Día</th>
+                  <th>Calorías (Kcal)</th>
+                  <th>Suplemento (g)</th>
+                  <th>Preparaciones</th>
+                  <th>Intervalo</th>
+                </tr>
+              </thead>
+              <tbody>
+                {datos.map((dato, index) => (
+                  <tr key={index}>
+                    <td>{dato.dia}</td>
+                    <td>{dato.caloriasDia}</td>
+                    <td>{dato.suplementoGramos}</td>
+                    <td>{dato.preparaciones}</td>
+                    <td>
+                      {dato.intervaloPreparaciones.horas}h{" "}
+                      {dato.intervaloPreparaciones.minutos}m
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {!mostrarTablaFinal && (
+          <button onClick={avanzarDia}>
+            {diaActual === datos.length - 1
+              ? "Ver tratamiento total"
+              : "Siguiente Día"}
+          </button>
+        )}
       </div>
     </div>
   );
