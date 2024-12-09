@@ -10,9 +10,10 @@ const Simulacion = () => {
     edad: "",
     dias_tratamiento: "",
     factor_estres: "",
+    suplemento_nombre: "", // Nuevo campo para el suplemento
   });
   const [datos, setDatos] = useState([]);
-  const [resumenTotal, setResumenTotal] = useState(null); // Para almacenar los datos del resumen final
+  const [resumenTotal, setResumenTotal] = useState(null);
   const [diaActual, setDiaActual] = useState(0);
   const [mostrarTablaFinal, setMostrarTablaFinal] = useState(false);
   const [tamanoCuerpo, setTamanoCuerpo] = useState(100);
@@ -25,13 +26,12 @@ const Simulacion = () => {
   const calcularResultados = async () => {
     try {
       setError(null);
-      setDiaActual(0); // Reiniciar simulación
-      setMostrarTablaFinal(false); // Ocultar tabla final
+      setDiaActual(0);
+      setMostrarTablaFinal(false);
       const response = await calcularNutricion(formData);
       setDatos(response.resultadosPorDia);
-      setResumenTotal(response.resumenTotal); // Guardar el resumen total
+      setResumenTotal(response.resumenTotal);
 
-      // Tamaño inicial
       const caloriasDia1 = response.resultadosPorDia[0]?.caloriasDia || 0;
       setTamanoCuerpo(Math.max(50, Math.min(caloriasDia1 / 50, 200)));
     } catch (err) {
@@ -44,9 +44,9 @@ const Simulacion = () => {
       setDiaActual((prev) => prev + 1);
 
       const caloriasDia = datos[diaActual + 1]?.caloriasDia || 0;
-      setTamanoCuerpo(Math.max(50, Math.min(caloriasDia / 50, 200))); // Actualizar tamaño dinámico
+      setTamanoCuerpo(Math.max(50, Math.min(caloriasDia / 50, 200)));
     } else {
-      setMostrarTablaFinal(true); // Mostrar tabla final
+      setMostrarTablaFinal(true);
     }
   };
 
@@ -135,13 +135,24 @@ const Simulacion = () => {
           <option value="1.7">Alto</option>
         </select>
 
+        <label>Suplemento:</label>
+        <select
+          name="suplemento_nombre"
+          value={formData.suplemento_nombre}
+          onChange={handleChange}
+        >
+          <option value="">Selecciona un suplemento</option>
+          <option value="Ensure Advance">Ensure Advance</option>
+          <option value="Nutrición Plus">Nutrición Plus</option>
+          <option value="FortiFit">FortiFit</option>
+        </select>
+
         <button onClick={calcularResultados}>Calcular</button>
       </div>
 
       <div className="resultados">
         {error && <p className="error">{error}</p>}
 
-        {/* Muñeco y datos diarios */}
         {!mostrarTablaFinal && diaActual < datos.length && (
           <>
             <div className="icono-cuerpo">
@@ -192,7 +203,6 @@ const Simulacion = () => {
           </>
         )}
 
-        {/* Tabla final */}
         {mostrarTablaFinal && resumenTotal && (
           <div>
             <h2>Resumen Final</h2>
